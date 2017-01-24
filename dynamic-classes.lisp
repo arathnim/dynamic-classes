@@ -3,6 +3,9 @@
 ;(declaim #+sbcl(sb-ext:muffle-conditions style-warning))
 ;(declaim #+sbcl(sb-ext:muffle-conditions warning))
 
+;; TODO
+;;  add support for :after and :before methods
+
 (ql:quickload '(alexandria iterate anaphora destructuring-match) :silent t)
 
 (defpackage dynamic-classes
