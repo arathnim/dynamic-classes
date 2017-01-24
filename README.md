@@ -15,17 +15,19 @@ Because dynamic-classes defines it's own defclass and make-instance, you have to
 Then, just use the new syntax in normal defclass and make-instance calls.
 
 ```cl
-(defclass square (shape drawable) :class-option value
-   (x 0 :type fixnum)
-   (y 0 :type fixnum)
-   (side-length 10)
+(defclass square (shape drawable)
+  (x 0 :type fixnum)
+  (y 0 :type fixnum)
+  (side-length 10)
    
-   (draw ((this square))
-      (with-slots (x y side-length) this
-         (draw-rectangle +blue+ x y side-length side-length))))
+  (draw ((this square))
+    (with-slots (x y side-length) this
+      (draw-rectangle +blue+ x y side-length side-length))))
 
+;; returns an instance of a new subclass of square,
+;; with a different method for draw
 (make-instance square :x 20 :y 50
-   (draw ((this square))
-      (with-slots (x y side-length) this
-         (draw-rounded-rectangle +red+ x y side-length side-length))))
+  (draw ((this square))
+    (with-slots (x y side-length) this
+      (draw-rounded-rectangle +red+ x y side-length side-length))))
 ```
