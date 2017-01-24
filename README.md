@@ -6,7 +6,7 @@ Expect it to be replaced by an even more advanced library at some point.
 
 Because dynamic-classes defines it's own defclass and make-instance, you have to shadow the symbols in your own package to use them.
 
-```cl
+```lisp
 (defpackage my-package
    (:shadowing-import-from dynamic-classes defclass make-instance)
 	(:use cl))
@@ -14,7 +14,7 @@ Because dynamic-classes defines it's own defclass and make-instance, you have to
 
 Then, just use the new syntax in normal defclass and make-instance calls.
 
-```cl
+```lisp
 (defclass square (shape drawable)
   (x 0 :type fixnum)
   (y 0 :type fixnum)
