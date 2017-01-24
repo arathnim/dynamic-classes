@@ -8,8 +8,8 @@ Because dynamic-classes defines it's own defclass and make-instance, you have to
 
 ```lisp
 (defpackage my-package
-   (:shadowing-import-from dynamic-classes defclass make-instance)
-	(:use cl))
+  (:shadowing-import-from dynamic-classes defclass make-instance)
+  (:use cl))
 ```
 
 Then, just use the new syntax in normal defclass and make-instance calls.
