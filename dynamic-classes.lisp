@@ -4,7 +4,6 @@
 ;(declaim #+sbcl(sb-ext:muffle-conditions warning))
 
 ;; TODO
-;;  add support for :after and :before methods
 
 (ql:quickload '(alexandria iterate) :silent t)
 
@@ -25,14 +24,21 @@
 (defun expand-method (name args &rest body)
    `(cl:defmethod ,name ,args ,@body))
 
+(defun expand-special-method (special name args &rest body)
+   `(cl:defmethod ,name ,special ,args ,@body))
+
 (defmacro defclass (name superclass &rest attributes)
    (let ((slots nil) (methods nil))
       (iter (for x in attributes)
          (when (listp x)
-            (if (or (eql (length x) 2) (and (eql (length x) 3) (keywordp (nth 3 x))))
-                (push (apply #'expand-slot x) slots)
-                (push (apply #'expand-method x) methods))))
-      `(progn 
+            (cond ((or (eql (length x) 2) (and (eql (length x) 3) (keywordp (nth 3 x))))
+                     (push (apply #'expand-slot x) slots))
+                  ((keywordp (first x))
+                     (push (apply #'expand-special-method x) methods))
+                  ((> (length x) 2)
+                     (push (apply #'expand-method x) methods))
+                  (t (error "whoops!")))))
+      `(progn
          (cl:defclass ,name ,superclass (,@slots))
          ,@methods)))
 
