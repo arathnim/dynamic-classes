@@ -4,6 +4,8 @@
 ;(declaim #+sbcl(sb-ext:muffle-conditions warning))
 
 ;; TODO
+;;  make the subclassing function correctly by replacing *class* in the arglist 
+;;  with the name of the subclass being defined
 
 (ql:quickload '(alexandria iterate) :silent t)
 
