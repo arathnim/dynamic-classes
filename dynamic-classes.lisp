@@ -6,11 +6,11 @@
 ;; TODO
 ;;  add support for :after and :before methods
 
-(ql:quickload '(alexandria iterate anaphora destructuring-match) :silent t)
+(ql:quickload '(alexandria iterate) :silent t)
 
 (defpackage dynamic-classes
  (:shadow defclass make-instance)
- (:use cl alexandria iterate anaphora destructuring-match)
+ (:use cl alexandria iterate)
  (:export defclass make-instance))
 
 (in-package dynamic-classes)
@@ -52,4 +52,5 @@
                 (progn (when x (push x defs)) (next x))))
       (if defs
          `(progn (defclass ,gs (,class) ,@defs) (cl:make-instance ',gs ,@(flatten keyargs)))
-         `(cl:make-instance ',class ,@(flatten keyargs)))))
+         `(cl:make-instance ',class 
+            ,@(iter (for x in keyargs) (collect (first x)) (collect (second x)))))))
