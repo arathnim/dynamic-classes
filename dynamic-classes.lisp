@@ -4,8 +4,6 @@
 ;(declaim #+sbcl(sb-ext:muffle-conditions warning))
 
 ;; TODO
-;;  make the subclassing function correctly by replacing *class* in the arglist 
-;;  with the name of the subclass being defined
 
 (ql:quickload '(alexandria iterate) :silent t)
 
@@ -16,21 +14,34 @@
 
 (in-package dynamic-classes)
 
+(defvar *class-name* nil)
+
+(defun symbol-eq (x y)
+   "Compares the names of symbols, to prevent package issues"
+   (and (symbolp x) (symbolp y) (string= (string x) (string y))))
+
 (defun as-keyword (symbol)
    "Returns a keyword with the same name as symbol"
    (intern (symbol-name symbol) :keyword))
+
+(defun transform-arguments (args)
+   (iter (for x in args)
+         (collect
+            (if (symbol-eq x '*this*)
+               `(,(intern "THIS" *package*) ,*class-name*)
+                x))))
 
 (defun expand-slot (name value &rest more-keys)
    `(,name :accessor ,name :initarg ,(as-keyword name) :initform ,value ,@more-keys))
 
 (defun expand-method (name args &rest body)
-   `(cl:defmethod ,name ,args ,@body))
+   `(cl:defmethod ,name ,(transform-arguments args) ,@body))
 
 (defun expand-special-method (special name args &rest body)
-   `(cl:defmethod ,name ,special ,args ,@body))
+   `(cl:defmethod ,name ,special ,(transform-arguments args) ,@body))
 
 (defmacro defclass (name superclass &rest attributes)
-   (let ((slots nil) (methods nil))
+   (let ((slots nil) (methods nil) (*class-name* name))
       (iter (for x in attributes)
          (when (listp x)
             (cond ((or (eql (length x) 2) (and (eql (length x) 3) (keywordp (nth 3 x))))
