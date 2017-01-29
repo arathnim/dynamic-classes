@@ -70,6 +70,7 @@
                 (progn (push (list x (next x)) keyargs) (next x))
                 (progn (when x (push x defs)) (next x))))
       (if defs
-         `(progn (defclass ,gs (,class) ,@defs) (cl:make-instance ',gs ,@(flatten keyargs)))
+         `(progn (defclass ,gs (,class) ,@defs) (cl:make-instance ',gs 
+               ,@(iter (for x in keyargs) (collect (first x)) (collect (second x)))))
          `(cl:make-instance ',class 
             ,@(iter (for x in keyargs) (collect (first x)) (collect (second x)))))))
