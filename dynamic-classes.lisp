@@ -60,17 +60,24 @@
    (setf (gethash prefix *gensym*) (+ 1 (gethash prefix *gensym* 0)))
    (intern (string-upcase (format nil "~a~a" prefix (gethash prefix *gensym*)))))
 
+(defun extract-keyargs (args)
+   (let ((keyargs nil) (other-things nil))
+      (iter (generating x in args)
+            (if (keywordp x)
+                (progn (push (list x (next x)) keyargs) (next x))
+                (progn (when x (push x other-things)) (next x))))
+      (list keyargs other-things)))
+
+(defun unpair (list)
+   (iter (for x in list) (collect (first x)) (collect (second x))))
+
 ;; guess I'll just do this manually
 ;; TODO: symbol/list parser combinators
 ;; ahahaha, generator magic
 (defmacro make-instance (class &rest args)
-   (let ((keyargs nil) (defs nil) (gs (gen-sym "dynamic-class"))) 
-      (iter (generating x in args)
-            (if (keywordp x)
-                (progn (push (list x (next x)) keyargs) (next x))
-                (progn (when x (push x defs)) (next x))))
+   (let* ((pargs (extract-keyargs args))
+          (keyargs (first pargs)) (defs (second pargs)) 
+          (gs (gen-sym "dynamic-class")))
       (if defs
-         `(progn (defclass ,gs (,class) ,@defs) (cl:make-instance ',gs 
-               ,@(iter (for x in keyargs) (collect (first x)) (collect (second x)))))
-         `(cl:make-instance ',class 
-            ,@(iter (for x in keyargs) (collect (first x)) (collect (second x)))))))
+         `(progn (defclass ,gs (,class) ,@defs) (cl:make-instance ',gs ,@(unpair keyargs)))
+         `(cl:make-instance ',class ,@(unpair keyargs)))))
